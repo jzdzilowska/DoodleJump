@@ -1,0 +1,108 @@
+Doodlejump README
+
+Overview:
+My program has an App class containing a PaneOrganizer class, in which
+the root BorderPane is created. PaneOrganizer handles the visual elements of the
+GUI (organizes the app's layout by setting up panes and their elements),
+as it contains the HBox, VBox, Pane, Button (quit button enabling the
+user to close the application), and Label classes, the latter of which
+displays the score that's updated with each scroll.
+
+The PaneOrganizer class also contains an instance of the top-level Game class
+which is associated with it and with the gamePane created within it. The Game class contains
+an instance of the PlatformHandler class (associated with the initial
+RegularPlatform, an ArrayList of all platforms, the gamePane and PaneOrganizer),
+randomly generating instances of the four distinct platforms
+(which are later added to an arraylist), as well as checking
+the doodle's position in relation to them and the borders of the App
+(either changing the doodle's velocity or leading to the end of the game),
+and increasing the user's score with each scroll.
+The Game class is also responsible for setting up the Timeline and KeyFrames
+with which the former is associated, that is meant to check the doodle's
+position by calling an appropriate method every 0.016 s (and eventually
+displaying a "Game Over" label once the doodle falls off screen). Additionally,
+it contains an instance of the Doodle class, which contains a rectangle and is
+associated with both the PlatformHandler - thanks to which it can call
+its ScrollPlatform method whenever a doodle goes above the middle of
+the screen - and with the gamePane.
+
+The game starts with a regular (standard) platform on the bottom and a screen
+of randomly generated ones, created through the method defined in the PlatformHandler
+class and added to the game both logically and graphically.
+The Timeline then checks the doodle's position, and in case of its intersection
+with one of the platforms, either calls the method responsible for
+changing its velocity and position or ending the game, if the
+checkOffScreen method defined within the Doodle class returns "true"
+(if the doodle's position exceeds those of the bottom of the app).
+The score increases by 1 with each pixel scrolled after the doodle goes
+above the middle of the screen.
+
+
+Design Choices:
+The Game class contains a Timeline that checks (and updates) the doodle's position
+with every KeyFrame (according to user's input via keys), and either creates an
+illusion of scrolling by generating new platforms (through a
+switch statement) according to the rectangle's location
+and changing the location of ones already instantiated, and deleting
+those which are positioned below the bottom of the screen. A
+separate Timeline created within the MovingPlatform class is responsible
+for changing their horizontal location. Both of the timelines stop
+when the game ends (when doodle goes off the screen) because of the fact,
+that all Platforms extend the abstract Platform class (with
+an abstract getTimeline method overridden by all of its
+subclasses which returns the timeline if a particular
+platform is an instance of the MovingPlatform class), and are
+added to an arraylist. When the endGame method is called,
+it goes through all the elements of the ArrayList
+and checks whether they're instances of the MovingPlatform
+class - if yes, their timeline, returned by the
+getTimeline method is stopped. The endGame method
+also sets up a Pane displaying the "Game Over" label.
+
+The PlatformHandler class is responsible for generating
+platforms with a randomized location based on the position
+of a previously created one, so that they're confined to
+a specified offset that prevents the platforms from being
+spawned too far away, or apart, from each other. This class
+prevents the Platform class, which handles the actual appearance
+of the Platforms, from being overly cluttered. By a for loop
+iterating through all of the arraylist's elements,
+it checks whether the doodle has intersected with any of the platforms,
+and if yes, changes it's velocity so that it appears to be
+bouncing. It's also responsible for updating the score value with
+each scroll, that - thanks to the PlatformHandler's association
+with the PaneOrganizer - can be later displayed via calling
+the PaneOrganizer's setText method.
+
+The Doodle class is a wrapper class. Rather than extending the Rectangle
+class, it encapsulates an instance of it, as most of the methods that
+would have been otherwise inherited don't need to be publicly exposed.
+It checks whether the doodle (a rectangle) has fallen off-screen based on
+its location through the checkOffScreen method, as well as specifies
+the distance by which the platforms should move, according to doodle's
+vertical position. It also defines methods responsible for moving the
+doodle depending on user's key input (called in the Game class), and
+wrapping the app by setting the rectangle's location to 0 once the
+doodle's position exceeds that of the pane.
+
+I have an addDoodle method in my PlatformHandler class that handles associating the
+PlatformHandler class with the Doodle class; I chose to do this because I could not feasibly
+associate the two of them with each other in their individual constructors because they both have to know
+about each other. As such, I perform association in the constructor of the Doodle and, after both the
+Doodle and PlatformHandler are constructed, associate the Doodle and PlatformHandler in the Doodle class with
+this method.
+
+The Platform class, on the other hand, is an abstract class which
+MovingPlatform, RegularPlatform, MovingPlatform, and DisappearingPlatform
+are extending. This way, polymorphism can be utilized in the creation of
+an arraylist (which helps with looking for MovingPlatforms
+and stopping their timelines once the game ends, and checking for potential
+intersection between the platform and doodle) and in the randomization of generating
+platforms via the switch statement .
+
+DEBUGGING COLLABORATORS
+None
+
+Known Bugs: None!
+
+Hours Spent: 20
